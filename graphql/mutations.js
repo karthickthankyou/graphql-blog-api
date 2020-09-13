@@ -1,6 +1,6 @@
-const { PostType } = require("./types")
+const { PostType, CommentType } = require("./types")
 
-const { User, Post } = require("../models")
+const { User, Post, Comment } = require("../models")
 const { GraphQLString } = require("graphql")
 
 const { createJwtToken } = require("../util/auth")
@@ -66,4 +66,21 @@ const addPost = {
   },
 }
 
-module.exports = { register, login, addPost }
+const addComment = {
+  type: CommentType,
+  description: "Create a new comment on the blog post",
+  args: {
+    comment: { type: GraphQLString },
+    postId: { type: GraphQLString },
+  },
+  resolve(parent, args, { verifiedUser }) {
+    const comment = new Comment({
+      userId: verifiedUser._id,
+      postId: args.postId,
+      comment: args.comment,
+    })
+    return comment.save()
+  },
+}
+
+module.exports = { register, login, addPost, addComment }
